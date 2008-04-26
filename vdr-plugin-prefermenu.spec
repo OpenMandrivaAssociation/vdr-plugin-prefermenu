@@ -2,7 +2,7 @@
 %define plugin	prefermenu
 %define name	vdr-plugin-%plugin
 %define version	0.6.6
-%define rel	12
+%define rel	13
 
 Summary:	VDR plugin: Preferred channels menu
 Name:		%name
@@ -12,8 +12,10 @@ Group:		Video
 License:	GPL
 URL:		http://famillejacques.free.fr/vdr/prefermenu/
 Source:		http://famillejacques.free.fr/vdr/prefermenu/vdr-%plugin-%version.tar.bz2
+Patch0:		90_prefermenu-0.6.6-1.5.3+SetAreas-bugfix.dpatch
+Patch1:		prefermenu-0.6.6-i18n-1.6.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	vdr-devel >= 1.4.1-6
+BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
 %description
@@ -22,6 +24,9 @@ It makes it easy to recall (switch to) your favorite channels.
 
 %prep
 %setup -q -n %plugin-%version
+%patch0 -p1
+%patch1 -p1
+%vdr_plugin_prep
 
 %build
 %vdr_plugin_build
