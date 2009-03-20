@@ -2,7 +2,7 @@
 %define plugin	prefermenu
 %define name	vdr-plugin-%plugin
 %define version	0.6.6
-%define rel	14
+%define rel	15
 
 Summary:	VDR plugin: Preferred channels menu
 Name:		%name
