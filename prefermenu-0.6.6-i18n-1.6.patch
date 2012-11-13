@@ -1,0 +1,973 @@
+
+This is a semi-automatically created i18n adaptation patch and may contain
+errors (such as missing translations). This should only be used as a
+temporary measure until the upstream plugin maintainer fixes the plugin
+properly according to the instructions in i18n-to-gettext.pl.
+
+Created for Mandriva Linux packaging by Anssi Hannula <anssi@mandriva.org>.
+
+
+Index: prefermenu-0.6.6/Makefile
+===================================================================
+--- prefermenu-0.6.6/Makefile
++++ prefermenu-0.6.6/Makefile	2008-04-24 22:44:36.000000000 +0300
+@@ -49,7 +49,7 @@
+ 
+ ### The object files (add further files here):
+ 
+-OBJS = $(PLUGIN).o preferosd.o prefersetup.o preferchannel.o i18n.o
++OBJS = $(PLUGIN).o preferosd.o prefersetup.o preferchannel.o 
+ 
+ ### Implicit rules:
+ 
+@@ -65,9 +65,34 @@
+ 
+ -include $(DEPFILE)
+ 
++### Internationalization (I18N):
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.[ch] *.[ch]xx *.cc *.[ch]pp *.hh)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<http://qa.mandriva.com/>' -o $@ $^
++
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Nmsgs)
++
+ ### Targets:
+ 
+-all: libvdr-$(PLUGIN).so
++all: libvdr-$(PLUGIN).so i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+ 	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+@@ -82,4 +107,5 @@
+ 	@echo Distribution package created as $(PACKAGE).tgz
+ 
+ clean:
++	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
+ 	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz core* *~
+Index: prefermenu-0.6.6/i18n.c
+===================================================================
+--- prefermenu-0.6.6/i18n.c
++++ prefermenu-0.6.6/i18n.c	2008-04-24 22:44:36.000000000 +0300
+@@ -1,268 +0,0 @@
+-/*
+- * PreferMenu plugin to VDR (C++)
+- *
+- * (C) 2004,2005,2006 Olivier Jacques <oliviervdr@free.fr>
+- *
+- * This code is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This code is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+- * Or, point your browser to http://www.gnu.org/copyleft/gpl.html
+- */
+-
+-#include "i18n.h"
+-
+-const tI18nPhrase Phrases[] = {
+-/*
+- * French  translations provided by Maxime Guilbot <maxime.guilbot@orange.fr>
+- */
+-  { "Channel", // ENGLISH
+-    "Kanal", // GERMAN
+-    "", // TODO
+-    "Canale", // ITALIAN
+-    "Kanaal", // NL
+-    "", // TODO
+-    "Chaînes", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Czatoma", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Origin X", // EN
+-    "Position X", // GERMAN
+-    "", // TODO
+-    "Origine X", // ITALIAN
+-    "X positie", // NL
+-    "", // TODO
+-    "Origine X", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "X helyzet", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Origin Y", // EN
+-    "Position Y", // GERMAN
+-    "", // TODO
+-    "Origine Y", // ITALIAN 
+-    "Y positie", // NL
+-    "", // TODO
+-    "Origine Y", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Y helyzet", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Width", //EN
+-    "Breite", // GER
+-    "", // TODO
+-    "Larghezza", // ITALIAN
+-    "Breedte", // NL
+-    "",
+-    "Largeur", 
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Szélesség", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "" // TODO
+-  },
+-  { "AddChannel",
+-    "Kanal hinzufügen", // GER
+-    "", // TODO
+-    "Aggiungi Canale", // ITALIAN
+-    "iKanaal bijdoen", // NL
+-    "", // TODO
+-    "Nouvelle chaîne",  // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Adj csatornát hozza", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "" // TODO
+-  },
+-  { "RemoveChannel",
+-    "Kanal löschen", // GER
+-    "", // TODO
+-    "Rimuovi Canale", // ITALIAN
+-    "Kanaal wegneemen", // NL
+-    "", // TODO
+-    "Supprime chaîne", //FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Fok csatornát", // HU
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "" // TODO
+-  },
+-/*
+-  { "Background opacity",
+-    "Rand transparenz", // TODO
+-    "", // TODO
+-    "Alpha Bordo 1", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Opacité du fond",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Selected channel opacity",
+-    "", // TODO
+-    "", // TODO
+-    "Alpha Bordo 2", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Opacité de la chaîne selectionnée",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Border opacity",
+-    "Alpha Rand", // GER
+-    "", // TODO
+-    "AlphaBordo", // ITALIAN
+-    "Alpha kant", // NL
+-    "", // TODO
+-    "Opacité du contour", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Alpha szegély", // HU
+-  },
+-*/
+-  { "Sort by",
+-    "", // TODO
+-    "", // TODO
+-    "Ordina Per", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Trier par",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "None",
+-    "", // TODO
+-    "", // TODO
+-    "Nessuno", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Aucun",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Name",
+-    "", // TODO
+-    "", // TODO
+-    "Nome", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Nom",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "As entered",
+-    "", // TODO
+-    "", // TODO
+-    "Non Ordinati", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Tel que saisi",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Close on switch",
+-    "", // TODO
+-    "", // TODO
+-    "Chiudi al cambio canale", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Fermer le menu en zappant",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-
+- { NULL }
+-};
+Index: prefermenu-0.6.6/i18n.c.orig
+===================================================================
+--- prefermenu-0.6.6/i18n.c.orig
++++ prefermenu-0.6.6/i18n.c.orig	2008-04-24 22:44:36.000000000 +0300
+@@ -1,214 +0,0 @@
+-/*
+- * PreferMenu plugin to VDR (C++)
+- *
+- * (C) 2001,2002 Stefan Huelswitt <huels@iname.com>
+- *
+- * This code is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This code is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+- * Or, point your browser to http://www.gnu.org/copyleft/gpl.html
+- */
+-
+-#include "i18n.h"
+-
+-const tI18nPhrase Phrases[] = {
+-/*
+- * French  translations provided by Maxime Guilbot <maxime.guilbot@orange.fr>
+- */
+-  { "Channel", // ENGLISH
+-    "Kanal", // GERMAN
+-    "", // TODO
+-    "Canale", // ITALIAN
+-    "Kanaal", // NL
+-    "", // TODO
+-    "Chaînes", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Czatoma", // HU
+-  },
+-  { "Origin X", // EN
+-    "Position X", // GERMAN
+-    "", // TODO
+-    "Origine X", // ITALIAN
+-    "X positie", // NL
+-    "", // TODO
+-    "Origine X", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "X helyzet", // HU
+-  },
+-  { "Origin Y", // EN
+-    "Position Y", // GERMAN
+-    "", // TODO
+-    "Origine Y", // ITALIAN 
+-    "Y positie", // NL
+-    "", // TODO
+-    "Origine Y", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Y helyzet", // HU
+-  },
+-  { "Width", //EN
+-    "Breite", // GER
+-    "", // TODO
+-    "Larghezza", // ITALIAN
+-    "Breedte", // NL
+-    "",
+-    "Largeur", 
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Szélesség", // HU
+-  },
+-  { "AddChannel",
+-    "Kanal hinzufügen", // GER
+-    "", // TODO
+-    "Aggiungi Canale", // ITALIAN
+-    "iKanaal bijdoen", // NL
+-    "", // TODO
+-    "Nouvelle chaîne",  // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Adj csatornát hozza", // HU
+-  },
+-  { "RemoveChannel",
+-    "Kanal löschen", // GER
+-    "", // TODO
+-    "Rimuovi Canale", // ITALIAN
+-    "Kanaal wegneemen", // NL
+-    "", // TODO
+-    "Supprime chaîne", //FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Fok csatornát", // HU
+-  },
+-/*
+-  { "Background opacity",
+-    "Rand transparenz", // TODO
+-    "", // TODO
+-    "Alpha Bordo 1", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Opacité du fond",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Selected channel opacity",
+-    "", // TODO
+-    "", // TODO
+-    "Alpha Bordo 2", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Opacité de la chaîne selectionnée",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Border opacity",
+-    "Alpha Rand", // GER
+-    "", // TODO
+-    "AlphaBordo", // ITALIAN
+-    "Alpha kant", // NL
+-    "", // TODO
+-    "Opacité du contour", // FR
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "Alpha szegély", // HU
+-  },
+-*/
+-  { "Sort by",
+-    "", // TODO
+-    "", // TODO
+-    "Ordina Per", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Trier par",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "None",
+-    "", // TODO
+-    "", // TODO
+-    "Nessuno", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Aucun",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Name",
+-    "", // TODO
+-    "", // TODO
+-    "Nome", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Nom",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "As entered",
+-    "", // TODO
+-    "", // TODO
+-    "Non Ordinati", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Tel que saisi",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-  { "Close on switch",
+-    "", // TODO
+-    "", // TODO
+-    "Chiudi al cambio canale", // ITALIAN
+-    "", // TODO
+-    "", // TODO
+-    "Fermer le menu en zappant",
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-    "", // TODO
+-  },
+-
+- { NULL }
+-};
+Index: prefermenu-0.6.6/i18n.h
+===================================================================
+--- prefermenu-0.6.6/i18n.h
++++ prefermenu-0.6.6/i18n.h	2008-04-24 22:44:36.000000000 +0300
+@@ -1,16 +0,0 @@
+-/*
+- * i18n.h: Internationalization
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.h 1.2 2002/05/11 14:48:16 kls Exp $
+- */
+-
+-#ifndef _I18N__H
+-#define _I18N__H
+-
+-#include <vdr/i18n.h>
+-
+-extern const tI18nPhrase Phrases[];
+-
+-#endif //_I18N__H
+Index: prefermenu-0.6.6/prefermenu.c
+===================================================================
+--- prefermenu-0.6.6/prefermenu.c
++++ prefermenu-0.6.6/prefermenu.c	2008-04-24 22:44:37.000000000 +0300
+@@ -11,7 +11,7 @@
+ #include "preferosd.h"
+ #include "prefersetup.h"
+ #include "preferchannel.h"
+-#include "i18n.h"
++
+ 
+ extern cPreferedChannels PreferedChannelsList;
+ extern cPreferedChannels PreferedChannelsListDisplay;
+@@ -49,7 +49,7 @@
+ bool cPluginPrefermenu::Start(void)
+ {
+   // Start any background activities the plugin shall perform.
+-  RegisterI18n(Phrases);
++  
+   // Default values for setup
+   return true;
+ }
+Index: prefermenu-0.6.6/preferosd.c
+===================================================================
+--- prefermenu-0.6.6/preferosd.c
++++ prefermenu-0.6.6/preferosd.c	2008-04-24 22:44:37.000000000 +0300
+@@ -10,7 +10,7 @@
+ 
+ #include "config.h"
+ #include "preferchannel.h"
+-#include "i18n.h"
++
+ 
+ #include "symbols/up.xpm"
+ #include "symbols/down.xpm"
+Index: prefermenu-0.6.6/prefersetup.c
+===================================================================
+--- prefermenu-0.6.6/prefersetup.c
++++ prefermenu-0.6.6/prefersetup.c	2008-04-24 22:44:37.000000000 +0300
+@@ -7,11 +7,11 @@
+  */
+  
+ #include "config.h"
+-#include "i18n.h"
++
+ 
+ #include "prefersetup.h"
+ 
+-static const char *SortOpt[] = { "As entered", "None", "Name", NULL };
++static const char *SortOpt[] = { trNOOP("As entered"), trNOOP("None"), trNOOP("Name"), NULL };
+ 
+ // --- cMenuEditSortByItem --------------------------------------------------
+ 
+Index: prefermenu-0.6.6/po/de_DE.po
+===================================================================
+--- prefermenu-0.6.6/po/de_DE.po
++++ prefermenu-0.6.6/po/de_DE.po	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,52 @@
++# VDR prefermenu plugin language source file.
++# Copyright (C) YEAR THE VDR-prefermenu'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-prefermenu package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-prefermenu\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: 2008-04-24 22:44+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "None"
++msgstr ""
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr "Position X"
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr "Position Y"
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr "Breite"
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr ""
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr ""
+Index: prefermenu-0.6.6/po/el_GR.po
+===================================================================
+--- prefermenu-0.6.6/po/el_GR.po
++++ prefermenu-0.6.6/po/el_GR.po	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,52 @@
++# VDR prefermenu plugin language source file.
++# Copyright (C) YEAR THE VDR-prefermenu'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-prefermenu package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-prefermenu\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: 2008-04-24 22:44+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-7\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "None"
++msgstr ""
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr "X helyzet"
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr "Y helyzet"
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr "Szélesség"
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr ""
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr ""
+Index: prefermenu-0.6.6/po/fr_FR.po
+===================================================================
+--- prefermenu-0.6.6/po/fr_FR.po
++++ prefermenu-0.6.6/po/fr_FR.po	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,52 @@
++# VDR prefermenu plugin language source file.
++# Copyright (C) YEAR THE VDR-prefermenu'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-prefermenu package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-prefermenu\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: 2008-04-24 22:44+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr "Tel que saisi"
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr "Nom"
++
++#: prefersetup.c:14
++msgid "None"
++msgstr "Aucun"
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr "Origine X"
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr "Origine Y"
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr "Largeur"
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr "Fermer le menu en zappant"
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr "Trier par"
+Index: prefermenu-0.6.6/po/it_IT.po
+===================================================================
+--- prefermenu-0.6.6/po/it_IT.po
++++ prefermenu-0.6.6/po/it_IT.po	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,52 @@
++# VDR prefermenu plugin language source file.
++# Copyright (C) YEAR THE VDR-prefermenu'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-prefermenu package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-prefermenu\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: 2008-04-24 22:44+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr "Non Ordinati"
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr "Nome"
++
++#: prefersetup.c:14
++msgid "None"
++msgstr "Nessuno"
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr "Origine X"
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr "Origine Y"
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr "Larghezza"
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr "Chiudi al cambio canale"
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr "Ordina Per"
+Index: prefermenu-0.6.6/po/nl_NL.po
+===================================================================
+--- prefermenu-0.6.6/po/nl_NL.po
++++ prefermenu-0.6.6/po/nl_NL.po	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,52 @@
++# VDR prefermenu plugin language source file.
++# Copyright (C) YEAR THE VDR-prefermenu'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-prefermenu package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-prefermenu\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: 2008-04-24 22:44+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "None"
++msgstr ""
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr "X positie"
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr "Y positie"
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr "Breedte"
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr ""
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr ""
+Index: prefermenu-0.6.6/po/prefermenu.pot
+===================================================================
+--- prefermenu-0.6.6/po/prefermenu.pot
++++ prefermenu-0.6.6/po/prefermenu.pot	2008-04-24 22:44:36.000000000 +0300
+@@ -0,0 +1,53 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the PACKAGE package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-24 22:44+0300\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: prefersetup.c:14
++msgid "As entered"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "Name"
++msgstr ""
++
++#: prefersetup.c:14
++msgid "None"
++msgstr ""
++
++#: prefersetup.c:111
++msgid "Origin X"
++msgstr ""
++
++#: prefersetup.c:112
++msgid "Origin Y"
++msgstr ""
++
++#: prefersetup.c:113
++msgid "Width"
++msgstr ""
++
++#: prefersetup.c:114
++msgid "Number of channels"
++msgstr ""
++
++#: prefersetup.c:118
++msgid "Close on switch"
++msgstr ""
++
++#: prefersetup.c:119
++msgid "Sort by"
++msgstr ""
