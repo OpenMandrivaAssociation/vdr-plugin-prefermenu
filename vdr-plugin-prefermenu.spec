@@ -3,7 +3,7 @@
 Summary:	VDR plugin: Preferred channels menu
 Name:		vdr-plugin-%plugin
 Version:	0.6.6
-Release:	18
+Release:	19
 Group:		Video
 License:	GPL
 URL:		http://famillejacques.free.fr/vdr/prefermenu/
