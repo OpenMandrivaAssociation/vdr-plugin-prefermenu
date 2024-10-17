@@ -6,7 +6,7 @@ Version:	0.6.6
 Release:	19
 Group:		Video
 License:	GPL
-URL:		http://famillejacques.free.fr/vdr/prefermenu/
+URL:		https://famillejacques.free.fr/vdr/prefermenu/
 Source:		http://famillejacques.free.fr/vdr/prefermenu/vdr-%plugin-%{version}.tar.bz2
 Patch0:		90_prefermenu-0.6.6-1.5.3+SetAreas-bugfix.dpatch
 Patch1:		prefermenu-0.6.6-i18n-1.6.patch
